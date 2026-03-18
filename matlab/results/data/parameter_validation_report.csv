@@ -1,0 +1,36 @@
+PARAMETER VALIDATION REPORT,,
+Generated:,21-Nov-2025 20:55:23,
+,,
+SECTION 1: FINAL PARAMETER VALUES,,
+Parameter,Value,Units
+K_cell,1,cm⁻¹
+L_coil,3e-06,H
+L_coil,3,μH
+C_dl,1e-05,F
+C_dl,10,μF
+f_ex,1000,Hz
+f_ex,1,kHz
+V_peak,1,V
+R_soil_min,5,Ω
+R_soil_max,200000,Ω
+R_soil_baseline,10000,Ω
+,,
+SECTION 2: NATURAL FREQUENCY VALIDATION,,
+Method,ω_n (rad/s),f_n (Hz)
+Direct Formula,182574.185835055,29057.5841566274
+Transfer Function,182574.185835055,29057.5841566274
+Pole Analysis,182574.185835055,29057.5841566274
+FINAL VALIDATED,182574.185835055,29057.5841566274
+,,
+SECTION 3: SYSTEM CHARACTERISTICS,,
+Property,Value,Units
+Natural Frequency,29057.5841566274,Hz
+Natural Angular Freq,182574.185835055,rad/s
+Operating Frequency,1000,Hz
+Frequency Ratio,0.0344144232572729,-
+Damping Ratio,9128.70929175277,-
+Quality Factor,5.47722557505166e-05,-
+Magnitude at f_n,0.0001,-
+Magnitude at f_ex,9.99998736485823e-05,-
+,,
+VALIDATION STATUS,PASSED,✓

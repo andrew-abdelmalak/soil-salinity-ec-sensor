@@ -1,0 +1,26 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# MATLAB auto-generated
+*.asv
+*.autosave
+*.m~
+slprj/
+*.slxc
+*.slxp
+*.mex*
+*.p
+
+# MATLAB figure export cache
+*.fig
+
+# Simulink code generation
+codegen/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env

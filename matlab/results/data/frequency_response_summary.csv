@@ -1,0 +1,19 @@
+Parameter,Value,Units
+Natural Frequency (f_n),29057.5841566274,Hz
+Natural Frequency (omega_n),182574.185835055,rad/s
+Damping Ratio (zeta),9128.70929175277,-
+Quality Factor (Q),5.47722557505166e-05,-
+Resonant Frequency,29205.5551218275,Hz
+Peak Magnitude,9.99999999999845e-05,abs
+Peak Magnitude,-80.0000000000014,dB
+Operating Frequency,1002.30754828386,Hz
+Magnitude at f_ex,9.99998742310711e-05,abs
+Magnitude at f_ex,-80.0000109241572,dB
+Phase at f_ex,0.0908708011439641,deg
+Lower -3dB Freq,1.60400310705682,Hz
+Upper -3dB Freq,1000000,Hz
+Bandwidth (-3dB),999998.395996894,Hz
+Theoretical BW,530516476.972984,Hz
+Fractional BW,3424.00064585494,%
+Freq Ratio (f_ex/f_res),0.0343190719745904,-
+Phase Margin,180.090870801144,deg

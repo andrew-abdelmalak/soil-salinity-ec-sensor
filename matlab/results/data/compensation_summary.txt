@@ -1,0 +1,20 @@
+MS3 SUMMARY - NOISE AND DRIFT COMPENSATION
+
+Config: SNR=30 dB, Drift=8.0%, Duration=20.0 s
+
+===========================================================
+MS3 ERROR ANALYSIS - PERFORMANCE METRICS
+===========================================================
+Metric                          Raw (Noisy)    Compensated
+-----------------------------------------------------------
+RMSE                            3.118213e-07     1.253469e-06
+RMSE (% of mean EC)             6.78%          27.25%
+Max Absolute Error              9.771002e-07     3.646722e-06
+Std Dev of Error                3.118076e-07     1.253493e-06
+Mean Error (Bias)               3.657952e-09     -4.092551e-09
+-----------------------------------------------------------
+IMPROVEMENT:
+  RMSE Reduction:               -301.98%
+  Max Error Reduction:          -273.22%
+===========================================================
+

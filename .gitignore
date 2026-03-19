@@ -1,9 +1,25 @@
-# OS files
+# ========================
+# OS Generated Files
+# ========================
 .DS_Store
 Thumbs.db
-desktop.ini
+Desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
 
-# MATLAB auto-generated
+# ========================
+# IDE / Editor
+# ========================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*~
+
+# ========================
+# MATLAB / Simulink
+# ========================
 *.asv
 *.autosave
 *.m~
@@ -12,15 +28,39 @@ slprj/
 *.slxp
 *.mex*
 *.p
-
-# MATLAB figure export cache
 *.fig
-
-# Simulink code generation
 codegen/
+*.mltbx
 
+# ========================
 # Python
+# ========================
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+dist/
+build/
+*.egg-info/
+.eggs/
 .env
+
+# ========================
+# Logs & Temporary
+# ========================
+*.log
+*.out
+*.tmp
+
+# ========================
+# Archives
+# ========================
+*.zip
+*.tar.gz
+*.tar.bz2
+*.rar
+*.7z

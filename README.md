@@ -138,7 +138,10 @@ soil-salinity-ec-sensor/
 │   │   ├── figures/                    # Exported plots (PNG, JPG)
 │   │   └── reports/                    # Analysis reports and correction notes (MD)
 │   └── tools/
-│       └── *.py                        # Code-generation and patch helpers
+│       ├── create_compensation_main.py # Generates noise_compensation_main.m
+│       ├── create_helpers.py           # Generates compensation helper functions
+│       ├── fix_compensation.py         # Patches compensation_filter.m
+│       └── fix_interp.py               # Patches interpolation in main script
 ├── .gitignore
 ├── LICENSE
 └── README.md

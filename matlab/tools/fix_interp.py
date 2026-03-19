@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-# Fix the interpolation issue in ms3_main.m
+# Fix the interpolation issue in noise_compensation_main.m
 
-matlab_code = r'''%  =========================================================================
-% ELCT 903 - Sensor Technology - Project 13: Soil Salinity (EC)
-% Milestone 3: MAIN SCRIPT - Noise and Drift Compensation
+import os
+
+matlab_code = r'''% =========================================================================
+% Soil Salinity (EC) Sensor
+% MAIN SCRIPT - Noise and Drift Compensation
 % =========================================================================
 clear all; close all; clc;
 
 fprintf('\n===========================================================\n');
-fprintf('MILESTONE 3: NOISE AND DRIFT COMPENSATION\n');
+fprintf('NOISE AND DRIFT COMPENSATION\n');
 fprintf('===========================================================\n\n');
 
 %% Configuration Parameters
@@ -47,7 +49,7 @@ params.V_peak = V_peak;
 params.EC_levels = EC_levels;
 params.EC_times = EC_times;
 
-[EC_true, R_soil_true, I_true] = ms3_generate_signals(t_vec, params);
+[EC_true, R_soil_true, I_true] = generate_signals(t_vec, params);
 
 % Build calibration lookup table (R_soil to I_true)
 R_calib = logspace(log10(min(R_soil_true)), log10(max(R_soil_true)), 500);
@@ -64,7 +66,7 @@ fprintf('\n');
 %% Add Noise and Drift
 fprintf('STEP 2: Adding Noise and Drift...\n');
 
-[I_meas, n_t, b_t] = ms3_add_noise_and_drift(I_true, t_vec, SNR_dB, drift_amp, drift_freq);
+[I_meas, n_t, b_t] = add_noise_and_drift(I_true, t_vec, SNR_dB, drift_amp, drift_freq);
 
 % Convert current to EC using calibration curve (I is monotonic with R)
 % Use reverse lookup: I -> R -> EC
@@ -80,7 +82,7 @@ filter_params.window_noise = window_noise;
 filter_params.window_drift = window_drift;
 filter_params.K_cell = K_cell;
 
-[I_comp, EC_est_temp, I_filt, b_est] = ms3_compensation_filter(I_meas, t_vec, filter_params);
+[I_comp, EC_est_temp, I_filt, b_est] = compensation_filter(I_meas, t_vec, filter_params);
 
 % Convert compensated current to EC
 R_comp = interp1(I_calib, R_calib, I_comp, 'linear', 'extrap');
@@ -91,15 +93,15 @@ fprintf('\n');
 %% Error Analysis
 fprintf('STEP 4: Computing Error Metrics...\n\n');
 
-[metrics, summary_str] = ms3_error_metrics(EC_true, EC_raw, EC_est, t_vec);
+[metrics, summary_str] = error_metrics(EC_true, EC_raw, EC_est, t_vec);
 fprintf('\n');
 
 %% Create Output Directories
-if ~exist('ms3_figures', 'dir')
-    mkdir('ms3_figures');
+if ~exist('results/figures', 'dir')
+    mkdir('results/figures');
 end
-if ~exist('ms3_data', 'dir')
-    mkdir('ms3_data');
+if ~exist('results/data', 'dir')
+    mkdir('results/data');
 end
 
 %% Visualization
@@ -117,9 +119,9 @@ hold off;
 grid on;
 xlabel('Time (s)');
 ylabel('EC (S/m)');
-title('MS3: EC Measurement Comparison');
+title('EC Measurement Comparison');
 legend('True EC', 'Raw EC (Noisy)', 'Compensated EC', 'Location', 'best');
-saveas(gcf, 'ms3_figures/ec_time_comparison.png');
+saveas(gcf, 'results/figures/ec_time_comparison.png');
 
 figure(2);
 plot(t_vec, err_raw, 'r-', 'LineWidth', 1);
@@ -130,9 +132,9 @@ hold off;
 grid on;
 xlabel('Time (s)');
 ylabel('EC Error');
-title('MS3: Error Analysis');
+title('EC Error Analysis');
 legend('Raw Error', 'Compensated Error', 'Location', 'best');
-saveas(gcf, 'ms3_figures/error_vs_time.png');
+saveas(gcf, 'results/figures/error_vs_time.png');
 
 figure(3);
 plot(t_vec, I_true*1000, 'k-', 'LineWidth', 2);
@@ -143,33 +145,33 @@ hold off;
 grid on;
 xlabel('Time (s)');
 ylabel('Output Current (mA)');
-title('MS3: Current Signal Comparison');
+title('Current Signal Comparison');
 legend('True Current', 'Measured (Noisy)', 'Compensated', 'Location', 'best');
-saveas(gcf, 'ms3_figures/current_comparison.png');
+saveas(gcf, 'results/figures/current_comparison.png');
 
-fprintf('  Saved figures to ms3_figures/\n');
+fprintf('  Saved figures to results/figures/\n');
 
 %% Data Export
 fprintf('STEP 6: Exporting Data...\n');
 
 data_table = table(t_vec', EC_true', R_soil_true', I_true', I_meas', I_comp', EC_raw', EC_est', err_raw', err_comp');
 data_table.Properties.VariableNames = {'Time_s', 'EC_true', 'R_soil_true_Ohm', 'I_true_A', 'I_meas_A', 'I_comp_A', 'EC_raw', 'EC_est', 'Error_raw', 'Error_comp'};
-writetable(data_table, 'ms3_data/ms3_signals.csv');
+writetable(data_table, 'results/data/compensation_signals.csv');
 
 metrics_names = {'RMSE'; 'RMSE_percent'; 'Max_Error'; 'Std_Dev'; 'Mean_Error'};
 metrics_raw = [metrics.rmse_raw; metrics.rmse_raw_pct; metrics.max_err_raw; metrics.std_err_raw; metrics.mean_err_raw];
 metrics_comp = [metrics.rmse_comp; metrics.rmse_comp_pct; metrics.max_err_comp; metrics.std_err_comp; metrics.mean_err_comp];
 metrics_table = table(metrics_names, metrics_raw, metrics_comp);
 metrics_table.Properties.VariableNames = {'Metric', 'Raw_Noisy', 'Compensated'};
-writetable(metrics_table, 'ms3_data/ms3_metrics.csv');
+writetable(metrics_table, 'results/data/compensation_metrics.csv');
 
-save('ms3_data/ms3_workspace.mat', 'params', 'metrics', 't_vec', 'EC_true', 'EC_raw', 'EC_est', 'I_true', 'I_meas', 'I_comp', 'SNR_dB', 'drift_amp', 'drift_freq');
+save('results/data/compensation_workspace.mat', 'params', 'metrics', 't_vec', 'EC_true', 'EC_raw', 'EC_est', 'I_true', 'I_meas', 'I_comp', 'SNR_dB', 'drift_amp', 'drift_freq');
 
-fprintf('  Exported data to ms3_data/\n\n');
+fprintf('  Exported data to results/data/\n\n');
 
 %% Final Summary
 fprintf('===========================================================\n');
-fprintf('MS3 SIMULATION COMPLETE\n');
+fprintf('SIMULATION COMPLETE\n');
 fprintf('===========================================================\n');
 fprintf('RMSE Improvement:         %.2f%%\n', metrics.improvement_rmse_pct);
 fprintf('Max Error Improvement:    %.2f%%\n', metrics.improvement_max_pct);
@@ -177,17 +179,17 @@ fprintf('Original RMSE:            %.6e\n', metrics.rmse_raw);
 fprintf('Compensated RMSE:         %.6e\n', metrics.rmse_comp);
 fprintf('===========================================================\n\n');
 
-summary_file = fopen('ms3_data/ms3_summary.txt', 'w');
-fprintf(summary_file, 'MS3 SUMMARY - NOISE AND DRIFT COMPENSATION\n\n');
+summary_file = fopen('results/data/compensation_summary.txt', 'w');
+fprintf(summary_file, 'SUMMARY - NOISE AND DRIFT COMPENSATION\n\n');
 fprintf(summary_file, 'Config: SNR=%.0f dB, Drift=%.1f%%, Duration=%.1f s\n\n', SNR_dB, drift_amp*100, T_total);
 fprintf(summary_file, '%s\n', summary_str);
 fclose(summary_file);
 
-fprintf('All MS3 deliverables ready!\n===========================================================\n');
+fprintf('All deliverables ready!\n===========================================================\n');
 '''
 
-output_path = r'd:\My Mine\Semester 9\Sensor Technology\Antigravity\Project\MATLAB\ms3_main.m'
+output_path = os.path.join(os.path.dirname(__file__), '..', 'noise_compensation_main.m')
 with open(output_path, 'w', newline='\r\n', encoding='utf-8') as f:
     f.write(matlab_code)
 
-print("Fixed ms3_main.m with proper calibration curve interpolation")
+print("Fixed noise_compensation_main.m with proper calibration curve interpolation")

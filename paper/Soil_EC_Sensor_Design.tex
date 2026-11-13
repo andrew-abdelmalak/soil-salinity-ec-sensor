@@ -8,6 +8,7 @@
 \usepackage{siunitx}
 \usepackage{multirow}
 \usepackage{url}
+\def\UrlBreaks{\do\/\do-}
 \usepackage[hidelinks]{hyperref}
 \graphicspath{{source/extracted_images/}}
 
@@ -204,7 +205,7 @@ C_{dl,new} &\approx 2 \times C_{dl,base} = 20\,\mu\text{F} \label{eq:cnew}\\
 The improvement factor is $\tau_{base}/\tau_{new} = 1.5/0.3 = 5$.
 
 \subsection{Simulation Validation}
-Fig.~\ref{fig:ms2_dynamic} shows the optimized dynamic response at $R_{soil} = 15$\,k\si{\ohm}. The sensor achieves steady-state within $t_s \approx 0.2$\,ms (well below one period of 1\,kHz excitation) with a stable peak current of $\approx$67\,$\mu$A. The practical current settling improvement exceeds 60$\times$ compared to the baseline, because the slow RC transient mode contributes negligibly to the current domain---the resistive response $I(t) \approx V_{peak}\sin(2\pi f_{ex}t)/R_{soil}$ dominates.
+Fig.~\ref{fig:ms2_dynamic} shows the optimized dynamic response at $R_{soil} = 15$\,k\si{\ohm}. The sensor achieves AC steady state within $t_s < 0.2$\,ms (well below one period of 1\,kHz excitation) with a stable peak current of $66.67\,\mu$A. In step-current terms, the fast inductive rise time constant is $\tau_L = L_{coil}/R_{soil} = 0.2$\,ns, while the slow double-layer RC charging time constant drops $5\times$ ($\tau_{RC} = 1.5\,\text{s} \rightarrow 0.3\,\text{s}$, 2\% decay time $5.87\,\text{s} \rightarrow 1.17\,\text{s}$). At $f_{ex} = 1$\,kHz, capacitive reactance $|Z_C| = 1/(2\pi f_{ex} C_{dl}) \approx 7.96$\,\si{\ohm} is negligible compared to $R_{soil} = 15$\,k\si{\ohm}, so the resistive response $I(t) \approx V_{peak}\sin(2\pi f_{ex}t)/R_{soil}$ dominates and AC settling occurs in under one cycle.
 
 \begin{figure}[H]
 \centering
@@ -258,17 +259,17 @@ A piecewise-constant EC trajectory over 20\,s with five discrete levels ($R_{soi
 \subsection{Dual-Window Moving Average Filter}
 The compensation employs a two-stage approach:
 
-\textbf{Stage 1 -- Noise Reduction:} A short-window moving average ($N_{noise} = 500$ samples, 0.5\,s window) attenuates high-frequency noise while preserving signal dynamics:
+\textbf{Stage 1 -- Short-Window Smoothing:} A centered moving average ($N_{noise} = 500$ samples, 0.5\,s window) attenuates high-frequency noise for transient tracking:
 \begin{equation}
-I_{filt}[k] = \frac{1}{N_{noise}} \sum_{i=k-N_{noise}/2}^{k+N_{noise}/2} I_{meas}[i]
+I_{filt}[k] = \frac{1}{N_{noise}} \sum_{i} I_{meas}[i]
 \end{equation}
 
-\textbf{Stage 2 -- Drift Compensation:} A longer-window moving average ($N_{drift} = 5000$ samples, 5\,s window) tracks low-frequency baseline drift for removal.
+\textbf{Stage 2 -- Long-Window Smoothing:} A longer centered moving average ($N_{drift} = 5000$ samples, 5\,s window) serves as the final compensated output $I_{comp}[k]$ for calibration lookup, while $b_{est}[k] = I_{comp}[k] - I_{filt}[k]$ estimates the slow baseline envelope without actively subtracting the 0.05\,Hz drift component.
 
-The filtered current is converted to EC via a calibration lookup table constructed from 500 logarithmically-spaced $R_{soil}$ values.
+The filtered current is converted to EC (in S/cm for $K_{cell} = 0.1\,\text{cm}^{-1}$, spanning $1.0$ to $10.0\,\mu$S/cm) via a calibration lookup table constructed from 500 logarithmically-spaced $R_{soil}$ values.
 
 \subsection{Results and Trade-off Analysis}
-Fig.~\ref{fig:ms3_error} shows the EC estimation error over the 20\,s trajectory. While the filter successfully suppresses high-frequency noise, it introduces large triangular transient errors at each EC step transition (4\,s intervals) because the 5\,s filter window cannot track rapid signal changes.
+Fig.~\ref{fig:ms3_error} shows the EC estimation error over the 20\,s trajectory. Away from step boundaries where the centered 5\,s window does not cross transitions ($t \in [0, 1.5]$\,s and $t \in [18.5, 20.0]$\,s), high-frequency noise standard deviation drops $9.6\times$ ($1.87 \times 10^{-7}$ to $1.95 \times 10^{-8}$\,S/cm) and $9.9\times$ ($1.82 \times 10^{-7}$ to $1.83 \times 10^{-8}$\,S/cm), reducing plateau RMSE from $2.05 \times 10^{-7}$ to $1.75 \times 10^{-7}$\,S/cm ($2.02 \times 10^{-7}$ to $1.73 \times 10^{-7}$\,S/cm at the end), with residual error dominated by unremoved 0.05\,Hz drift. Conversely, across the full 20\,s sequence, the 5\,s window introduces triangular transient errors at each 4\,s step transition.
 
 \begin{figure}[H]
 \centering
@@ -286,20 +287,20 @@ Fig.~\ref{fig:ms3_current} illustrates the current-domain signal processing chai
 \label{fig:ms3_current}
 \end{figure}
 
-Table~\ref{tab:ms3_metrics} quantifies the compensation performance. The raw measurement achieves 6.78\% RMSE, while compensation degrades to 27.25\% due to over-smoothing---a result specific to the artificially fast test trajectory. For real-world deployments where soil EC varies over minutes to hours, the filter would perform well.
+Table~\ref{tab:ms3_metrics} quantifies the full-trajectory compensation performance. The raw measurement achieves 6.78\% RMSE ($10.17\%$ with the $N = 500$ stage alone), while the 5\,s window increases full-sequence RMSE to 27.25\% due to step over-smoothing---a result specific to the artificially fast 4\,s step trajectory. For slowly varying field soil EC (minutes to hours), active drift subtraction or adaptive filtering is still needed to remove slow baseline bias.
 
 \begin{table}[H]
 \centering
-\caption{Noise Compensation Performance Metrics}
+\caption{Full-Trajectory Noise Compensation Metrics (S/cm)}
 \label{tab:ms3_metrics}
 \begin{tabular}{lll}
 \toprule
 \textbf{Metric} & \textbf{Raw} & \textbf{Compensated} \\
 \midrule
-RMSE & $3.12 \times 10^{-7}$ & $1.25 \times 10^{-6}$ \\
+RMSE [S/cm] & $3.12 \times 10^{-7}$ & $1.25 \times 10^{-6}$ \\
 RMSE (\% of mean EC) & 6.78\% & 27.25\% \\
-Max Absolute Error & $9.77 \times 10^{-7}$ & $3.65 \times 10^{-6}$ \\
-Mean Bias & $3.66 \times 10^{-9}$ & $-4.09 \times 10^{-9}$ \\
+Max Abs.\ Error [S/cm] & $9.77 \times 10^{-7}$ & $3.65 \times 10^{-6}$ \\
+Mean Bias [S/cm] & $3.66 \times 10^{-9}$ & $-4.09 \times 10^{-9}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -313,7 +314,7 @@ Three commercial sensors are compared against our optimized design:
 \begin{enumerate}
 \item \textbf{Atlas Scientific K\,1.0:} Professional-grade probe with 5--200{,}000\,$\mu$S/cm range, $\pm$2\% accuracy, and fringe-effect immunity~\cite{atlas2023}.
 \item \textbf{Vernier CON-BTA:} Educational probe with automatic temperature compensation and three selectable ranges up to 20{,}000\,$\mu$S/cm~\cite{vernier2025}.
-\item \textbf{METER 5TE:} Integrated soil sensor measuring VWC, EC (0--23\,dS/m), and temperature with 150\,ms response~\cite{meter2018}.
+\item \textbf{METER 5TE:} Integrated probe measuring VWC, EC (0--23\,dS/m), and soil temperature with a 150\,ms response~\cite{meter2018}.
 \end{enumerate}
 
 \subsection{Datasheet Comparison}
@@ -391,7 +392,8 @@ This paper presented the complete design cycle of a soil EC sensor for precision
 Atlas Scientific, ``Conductivity Probe K 1.0 Datasheet,'' 2023. [Online]. Available: \url{https://atlas-scientific.com/probes/conductivity-probe-k-1-0/}
 
 \bibitem{vernier2025}
-Vernier Software \& Technology, ``Conductivity Probe User Manual (CON-BTA),'' 2025. [Online]. Available: \url{https://www.vernier.com/manuals/con-bta/}
+{\raggedright
+Vernier Software \& Technology, ``Conductivity Probe User Manual (CON-BTA),'' 2025. [Online]. Available: \url{https://www.vernier.com/manuals/con-bta/}\par}
 
 \bibitem{meter2018}
 METER Group, Inc., ``5TE Water Content, EC and Temperature Sensors Manual,'' 2018. [Online]. Available: \url{https://www.misure.net/sites/default/files/pdf/20435_5TE_Manual_Web.pdf}

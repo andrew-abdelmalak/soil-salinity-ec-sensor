@@ -1,0 +1,27 @@
+name: Bug report
+description: Report a numerical discrepancy, Octave/Python error, or broken build.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: What went wrong?
+      description: Describe the failing command, incorrect output, or plot/equation mismatch.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Exact commands or script names run (for example, uv run pytest or octave-cli run_all.m).
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python/uv version, and MATLAB or GNU Octave version.
+      placeholder: "Ubuntu 24.04, Python 3.13, Octave 9.2.0"
+    validations:
+      required: false

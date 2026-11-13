@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software or reference the design study, please cite it using this metadata."
+title: "Soil Salinity (EC) Sensor Design: Analytical Modeling, Optimization, and Signal Compensation"
+type: software
+authors:
+  - family-names: Abdelmalak
+    given-names: Andrew
+  - family-names: George
+    given-names: Daniel
+  - family-names: Louis
+    given-names: David
+  - family-names: Sameh
+    given-names: Samir
+  - family-names: Youssry
+    given-names: Youssef
+repository-code: "https://github.com/andrew-abdelmalak/soil-salinity-ec-sensor"
+license: MIT
+version: "1.0.0"
+date-released: 2026-03-19
+keywords:
+  - soil electrical conductivity
+  - soil salinity sensor
+  - rlc circuit modeling
+  - precision agriculture
+  - octave
+  - python

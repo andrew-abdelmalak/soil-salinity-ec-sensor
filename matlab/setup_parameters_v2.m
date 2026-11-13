@@ -2,6 +2,13 @@
 % Soil Salinity (EC)
 % IMPROVED Simulation Parameters
 % =========================================================================
+
+if exist('OCTAVE_VERSION', 'builtin')
+    addpath(fullfile(fileparts(mfilename('fullpath')), 'compat'));
+    if isempty(getenv('DISPLAY'))
+        set(0, 'defaultfigurevisible', 'off');
+    end
+end
 %
 % IMPROVEMENT STRATEGY:
 % ---------------------
@@ -80,3 +87,8 @@ dt = 1/(f_ex * 50);    % Time step (s) - 50 times oversampling
 V_peak = 1;            % Peak voltage of AC excitation (V)
 t_vec = 0:dt:T_sim;    % Time vector
 V_in = V_peak * sin(2*pi*f_ex * t_vec); % AC excitation signal (V)
+
+% 5. Transfer function coefficients (used by ec_sensor_model.slx)
+Num_L = [C_dl, 0];
+Den_L = [L_coil * C_dl, R_soil_baseline * C_dl, 1];
+

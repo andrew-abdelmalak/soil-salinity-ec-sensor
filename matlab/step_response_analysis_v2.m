@@ -33,7 +33,9 @@ fprintf('\n');
 % --- Fresh Water ---
 zeta_fresh = (R_fresh / (2 * L_coil)) * sqrt(L_coil * C_dl);
 Q_fresh = 1 / (2 * zeta_fresh);
-tau_fresh = 1 / (zeta_fresh * omega_n);
+tau_RC_fresh = R_fresh * C_dl;
+tau_L_fresh = L_coil / R_fresh;
+tau_fresh = tau_RC_fresh;
 
 if zeta_fresh < 1
     damping_type_fresh = 'UNDERDAMPED';
@@ -48,7 +50,9 @@ end
 % --- Salty Water ---
 zeta_salty = (R_salty / (2 * L_coil)) * sqrt(L_coil * C_dl);
 Q_salty = 1 / (2 * zeta_salty);
-tau_salty = 1 / (zeta_salty * omega_n);
+tau_RC_salty = R_salty * C_dl;
+tau_L_salty = L_coil / R_salty;
+tau_salty = tau_RC_salty;
 
 if zeta_salty < 1
     damping_type_salty = 'UNDERDAMPED';
@@ -65,7 +69,8 @@ fprintf('=== FRESH WATER (IMPROVED) ===\n');
 fprintf('  Damping Ratio (ζ):           %.6f\n', zeta_fresh);
 fprintf('  Quality Factor (Q):          %.6f\n', Q_fresh);
 fprintf('  Damping Type:                %s\n', damping_type_fresh);
-fprintf('  Time Constant (τ):           %.3f ms\n', tau_fresh*1000);
+fprintf('  RC Time Constant (tau_RC):   %.3f ms\n', tau_RC_fresh*1000);
+fprintf('  Inductive Tau (tau_L):       %.3e ms\n', tau_L_fresh*1000);
 if ~isnan(T_d_fresh)
     fprintf('  Oscillation Period (T_d):    %.3f ms\n', T_d_fresh*1000);
 end
@@ -75,7 +80,8 @@ fprintf('=== SALTY WATER ===\n');
 fprintf('  Damping Ratio (ζ):           %.6f\n', zeta_salty);
 fprintf('  Quality Factor (Q):          %.6f\n', Q_salty);
 fprintf('  Damping Type:                %s\n', damping_type_salty);
-fprintf('  Time Constant (τ):           %.3f ms\n', tau_salty*1000);
+fprintf('  RC Time Constant (tau_RC):   %.3f ms\n', tau_RC_salty*1000);
+fprintf('  Inductive Tau (tau_L):       %.3e ms\n', tau_L_salty*1000);
 if ~isnan(T_d_salty)
     fprintf('  Oscillation Period (T_d):    %.3f ms\n', T_d_salty*1000);
 end
@@ -90,13 +96,13 @@ num_salty = [C_dl, 0];
 den_salty = [L_coil * C_dl, R_salty * C_dl, 1];
 H_salty = tf(num_salty, den_salty);
 
-% Simulate step responses
-[y_fresh, t_fresh] = step(H_fresh);
-[y_salty, t_salty] = step(H_salty);
+% Simulate step responses over 5*tau_RC
+[y_fresh, t_fresh] = step(H_fresh, 5 * tau_RC_fresh);
+[y_salty, t_salty] = step(H_salty, 5 * tau_RC_salty);
 
-% Get step response metrics
-info_fresh = stepinfo(H_fresh);
-info_salty = stepinfo(H_salty);
+% Get transient step metrics relative to peak current (DC steady-state is 0)
+info_fresh = stepinfo(y_fresh, t_fresh, 0);
+info_salty = stepinfo(y_salty, t_salty, 0);
 
 fprintf('=== STEP RESPONSE METRICS ===\n\n');
 fprintf('FRESH WATER (IMPROVED):\n');
@@ -125,9 +131,10 @@ summary_data = {
     'Metric', 'Fresh Water (MS2)', 'Salty Water', 'Units';
     'Resistance', R_fresh, R_salty, 'Ω';
     'Damping Ratio (ζ)', zeta_fresh, zeta_salty, '-';
-    'Time Constant (τ)', tau_fresh*1000, tau_salty*1000, 'ms';
+    'RC Time Constant (τ_RC)', tau_RC_fresh*1000, tau_RC_salty*1000, 'ms';
+    'Inductive Tau (τ_L)', tau_L_fresh*1000, tau_L_salty*1000, 'ms';
     'Rise Time', info_fresh.RiseTime*1000, info_salty.RiseTime*1000, 'ms';
-    'Settling Time', info_fresh.SettlingTime*1000, info_salty.SettlingTime*1000, 'ms';
+    'Settling Time (2% decay)', info_fresh.SettlingTime*1000, info_salty.SettlingTime*1000, 'ms';
     'Overshoot', info_fresh.Overshoot, info_salty.Overshoot, '%';
 };
 

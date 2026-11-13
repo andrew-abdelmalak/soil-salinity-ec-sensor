@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 420" width="920" height="420" role="img" aria-labelledby="rlc-title rlc-desc">
+  <title id="rlc-title">Series-RLC Soil EC Sensor Equivalent Circuit and Design Comparison</title>
+  <desc id="rlc-desc">AC excitation drives lead inductance L_coil, double-layer capacitance C_dl, and soil resistance R_soil in series. Reducing cell constant K_cell from 1.0 to 0.1 cm^-1 increases fresh-water peak current 10x and reduces RC time constant 5x.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.2; }
+      .wire { fill: none; stroke: #1e293b; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+      .comp { fill: none; stroke: #0f766e; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+      .src { fill: #ecfdf5; stroke: #0f766e; stroke-width: 2.2; }
+      .title { font: 700 18px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #0f172a; }
+      .subtitle { font: 500 12.5px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #475569; }
+      .lbl { font: 600 13px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #0f172a; }
+      .mono { font: 600 12.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f766e; }
+      .note { font: 400 12px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #334155; }
+      .hdr { font: 700 13px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #1e293b; }
+      .arrow { fill: #b45309; }
+      .arrow-line { stroke: #b45309; stroke-width: 2.2; fill: none; }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" class="arrow" />
+    </marker>
+  </defs>
+
+  <rect x="2" y="2" width="916" height="416" rx="12" class="bg" />
+
+  <text x="28" y="34" class="title">Series-RLC Electrochemical Cell Model and Geometric Scaling</text>
+  <text x="28" y="54" class="subtitle">Lagrangian-derived admittance H(s) = s·C_dl / (L_coil·C_dl·s² + R_soil·C_dl·s + 1) at 1 kHz, 1 V peak AC excitation</text>
+
+  <!-- Circuit schematic box -->
+  <rect x="24" y="72" width="540" height="236" rx="8" class="panel" />
+  <text x="40" y="96" class="hdr">Equivalent Series-RLC Loop</text>
+
+  <!-- Left wire & AC source -->
+  <line x1="88" y1="248" x2="88" y2="206" class="wire" />
+  <line x1="88" y1="154" x2="88" y2="128" class="wire" />
+  <line x1="88" y1="128" x2="146" y2="128" class="wire" />
+  <circle cx="88" cy="180" r="26" class="src" />
+  <path d="M 74 180 Q 81 166 88 180 T 102 180" class="comp" />
+  <text x="40" y="138" class="lbl">V_in(t)</text>
+  <text x="34" y="226" class="note">1 V, 1 kHz</text>
+
+  <!-- Current arrow -->
+  <line x1="112" y1="114" x2="152" y2="114" class="arrow-line" marker-end="url(#arrowhead)" />
+  <text x="116" y="106" class="mono" style="fill:#b45309;">I_out(t)</text>
+
+  <!-- Inductor L_coil (4 loops) -->
+  <path d="M 146 128 C 146 112, 162 112, 162 128 C 162 112, 178 112, 178 128 C 178 112, 194 112, 194 128 C 194 112, 210 112, 210 128" class="comp" />
+  <text x="155" y="152" class="lbl">L_coil</text>
+  <text x="159" y="168" class="mono">3 µH</text>
+  <line x1="210" y1="128" x2="254" y2="128" class="wire" />
+
+  <!-- Capacitor C_dl -->
+  <line x1="254" y1="110" x2="254" y2="146" class="comp" />
+  <line x1="268" y1="110" x2="268" y2="146" class="comp" />
+  <text x="242" y="168" class="lbl">C_dl</text>
+  <text x="225" y="184" class="mono">10 → 20 µF</text>
+  <line x1="268" y1="128" x2="322" y2="128" class="wire" />
+
+  <!-- Resistor R_soil -->
+  <polyline points="322,128 330,116 340,140 350,116 360,140 370,116 380,140 388,128" class="comp" />
+  <text x="316" y="158" class="lbl">R_soil = K_cell / EC</text>
+  <text x="322" y="174" class="mono">5 Ω – 200 kΩ</text>
+  <line x1="388" y1="128" x2="496" y2="128" class="wire" />
+
+  <!-- Right return & ground -->
+  <line x1="496" y1="128" x2="496" y2="248" class="wire" />
+  <circle cx="496" cy="188" r="20" class="src" />
+  <text x="489" y="193" class="lbl">A</text>
+  <text x="424" y="193" class="note">Current</text>
+  <text x="424" y="207" class="note">readout</text>
+  <line x1="88" y1="248" x2="496" y2="248" class="wire" />
+
+  <!-- Ground symbol at center bottom -->
+  <line x1="292" y1="248" x2="292" y2="266" class="wire" />
+  <line x1="274" y1="266" x2="310" y2="266" class="wire" />
+  <line x1="280" y1="273" x2="304" y2="273" class="wire" />
+  <line x1="286" y1="280" x2="298" y2="280" class="wire" />
+
+  <!-- Right comparison box: MS1 vs MS2 -->
+  <rect x="582" y="72" width="314" height="236" rx="8" class="panel" />
+  <text x="598" y="96" class="hdr">Geometric Optimization (MS1 → MS2)</text>
+
+  <text x="598" y="126" class="lbl">Baseline (MS1): K_cell = 1.0 cm⁻¹</text>
+  <text x="598" y="146" class="note">• f_n = 29.06 kHz, ζ = 45.6 – 136,931</text>
+  <text x="598" y="164" class="note">• R_fresh = 150 kΩ → I_peak = 6.67 µA</text>
+  <text x="598" y="182" class="note">• τ_RC = 1.50 s (5.87 s 2% step decay)</text>
+
+  <line x1="598" y1="196" x2="880" y2="196" stroke="#e2e8f0" stroke-width="1.2" />
+
+  <text x="598" y="220" class="lbl" style="fill:#0f766e;">Optimized (MS2): K_cell = 0.1 cm⁻¹</text>
+  <text x="598" y="240" class="note">• f_n = 20.55 kHz (20.5× above 1 kHz f_ex)</text>
+  <text x="598" y="258" class="note">• R_fresh = 15 kΩ → I_peak = 66.67 µA (10×)</text>
+  <text x="598" y="276" class="note">• τ_RC = 0.30 s (5× faster; 1.17 s decay)</text>
+  <text x="598" y="294" class="note">• AC steady state settles &lt; 0.2 ms (&lt; 1 cycle)</text>
+
+  <!-- Bottom note strip -->
+  <rect x="24" y="324" width="872" height="72" rx="8" class="panel" />
+  <text x="40" y="348" class="hdr">Two Separated Time Scales at 1 kHz Operation</text>
+  <text x="40" y="368" class="note">Inductive rise constant τ_L = L_coil / R_soil (0.02 ns at 150 kΩ, 0.2 ns at 15 kΩ) governs step current onset, while τ_RC = R_soil·C_dl governs double-layer</text>
+  <text x="40" y="385" class="note">charging. Because |Z_C| = 1 / (2π·1 kHz·20 µF) ≈ 7.96 Ω ≪ R_soil = 15 kΩ, current output reflects 1 / R_soil linearly in soil EC without waiting multiple τ_RC.</text>
+</svg>

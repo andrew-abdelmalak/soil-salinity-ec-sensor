@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" role="img" aria-labelledby="sp-title sp-desc">
+  <title id="sp-title">Soil Salinity EC Sensor GitHub Social Preview</title>
+  <desc id="sp-desc">Social preview banner for soil-salinity-ec-sensor summarizing Lagrangian RLC modeling, geometric optimization from K=1.0 to 0.1 cm^-1, and Octave/Python verification.</desc>
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b132b" />
+      <stop offset="55%" stop-color="#112240" />
+      <stop offset="100%" stop-color="#0d3b3e" />
+    </linearGradient>
+    <linearGradient id="accent-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2dd4bf" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+    <style>
+      .eyebrow { font: 700 18px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #2dd4bf; letter-spacing: 2px; }
+      .h1 { font: 800 54px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #f8fafc; }
+      .sub { font: 400 24px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #cbd5e1; }
+      .card { fill: rgba(15, 23, 42, 0.72); stroke: rgba(45, 212, 191, 0.35); stroke-width: 1.5; }
+      .stat { font: 800 32px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #2dd4bf; }
+      .stat-lbl { font: 500 16px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #e2e8f0; }
+      .footer { font: 500 18px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #94a3b8; }
+      .grid-line { stroke: rgba(148, 163, 184, 0.14); stroke-width: 1; }
+      .axis { stroke: rgba(148, 163, 184, 0.45); stroke-width: 1.8; fill: none; }
+      .curve-ms1 { stroke: #94a3b8; stroke-width: 3; stroke-dasharray: 8 6; fill: none; }
+      .curve-ms2 { stroke: url(#accent-grad); stroke-width: 4.5; fill: none; }
+      .plot-lbl { font: 600 15px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #cbd5e1; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#bg-grad)" />
+
+  <!-- Subtle background grid on right -->
+  <g transform="translate(760, 85)">
+    <rect x="0" y="0" width="450" height="390" rx="16" fill="rgba(11, 19, 43, 0.65)" stroke="rgba(148, 163, 184, 0.25)" stroke-width="1.5" />
+    <line x1="45" y1="60" x2="415" y2="60" class="grid-line" />
+    <line x1="45" y1="130" x2="415" y2="130" class="grid-line" />
+    <line x1="45" y1="200" x2="415" y2="200" class="grid-line" />
+    <line x1="45" y1="270" x2="415" y2="270" class="grid-line" />
+    <line x1="120" y1="45" x2="120" y2="310" class="grid-line" />
+    <line x1="220" y1="45" x2="220" y2="310" class="grid-line" />
+    <line x1="320" y1="45" x2="320" y2="310" class="grid-line" />
+
+    <!-- Axes -->
+    <polyline points="45,45 45,310 415,310" class="axis" />
+    <text x="45" y="34" class="plot-lbl">Fresh-Water Admittance Gain |H(jf)|</text>
+    <text x="278" y="335" class="plot-lbl">log10(f)</text>
+
+    <!-- Baseline MS1 bandpass plateau (lower) -->
+    <path d="M 48 298 C 95 292, 120 264, 155 256 L 345 256 C 378 258, 396 276, 412 292" class="curve-ms1" />
+    <!-- Optimized MS2 bandpass plateau (10x higher) -->
+    <path d="M 48 292 C 88 264, 110 130, 148 112 L 348 112 C 380 116, 398 166, 412 232" class="curve-ms2" />
+
+    <!-- Operating point marker at f_ex = 1 kHz -->
+    <line x1="220" y1="55" x2="220" y2="310" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4 4" />
+    <circle cx="220" cy="112" r="6" fill="#fbbf24" />
+    <circle cx="220" cy="256" r="5" fill="#94a3b8" />
+    <text x="232" y="96" class="plot-lbl" style="fill:#fbbf24;">1 kHz: 66.67 µA</text>
+    <text x="232" y="244" class="plot-lbl">MS1: 6.67 µA</text>
+
+    <!-- Legend -->
+    <line x1="45" y1="362" x2="78" y2="362" class="curve-ms2" />
+    <text x="88" y="367" class="plot-lbl">MS2 (K = 0.1 cm⁻¹)</text>
+    <line x1="275" y1="362" x2="308" y2="362" class="curve-ms1" />
+    <text x="318" y="367" class="plot-lbl">MS1 (K = 1.0)</text>
+  </g>
+
+  <!-- Left copy -->
+  <text x="72" y="112" class="eyebrow">MECHATRONICS · SENSOR MODELING</text>
+  <text x="72" y="182" class="h1">Soil Salinity (EC)</text>
+  <text x="72" y="244" class="h1">Sensor Design</text>
+  <text x="72" y="302" class="sub">Series-RLC admittance model, geometric scaling,</text>
+  <text x="72" y="336" class="sub">and dual-window noise compensation</text>
+
+  <!-- Metric cards -->
+  <g transform="translate(72, 395)">
+    <rect x="0" y="0" width="205" height="118" rx="12" class="card" />
+    <text x="20" y="48" class="stat">10× Gain</text>
+    <text x="20" y="78" class="stat-lbl">Fresh-water output</text>
+    <text x="20" y="100" class="stat-lbl">6.67 → 66.67 µA</text>
+
+    <rect x="223" y="0" width="205" height="118" rx="12" class="card" />
+    <text x="243" y="48" class="stat">5× Faster</text>
+    <text x="243" y="78" class="stat-lbl">Double-layer τ_RC</text>
+    <text x="243" y="100" class="stat-lbl">1.50 s → 0.30 s</text>
+
+    <rect x="446" y="0" width="215" height="118" rx="12" class="card" />
+    <text x="466" y="48" class="stat">21 / 21</text>
+    <text x="466" y="78" class="stat-lbl">Octave 9.2 + Python</text>
+    <text x="466" y="100" class="stat-lbl">IEEE Paper PDF</text>
+  </g>
+
+  <text x="72" y="582" class="footer">github.com/andrew-abdelmalak/soil-salinity-ec-sensor</text>
+</svg>

@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint-test-build:
+    name: Lint, test, and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install uv and Python 3.13
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: "3.13"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Sync locked environment
+        run: uv sync --locked
+
+      - name: Lint and check formatting with Ruff
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Run pytest verification suite
+        run: uv run pytest -v
+
+      - name: Run Python verification CLI
+        run: uv run python -m soil_sensor
+
+      - name: Run MATLAB/Octave verification suite in Octave 9.2.0
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/matlab:/work" \
+            -w /work \
+            gnuoctave/octave@sha256:100d394c57b86469748d26ddafcf73a1074338a66dabcababe2e4e05146772b9 \
+            octave-cli --no-gui --quiet run_all.m
+
+      - name: Verify generated CSV data contains no NaN or Inf
+        run: |
+          if grep -rn "NaN\|Inf" matlab/results/data/; then
+            echo "Found NaN or Inf in CSV results"
+            exit 1
+          fi

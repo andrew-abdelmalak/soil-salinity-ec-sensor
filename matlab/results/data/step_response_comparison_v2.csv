@@ -1,0 +1,8 @@
+Metric,Fresh Water (MS2),Salty Water,Units
+Resistance,15000,50,Ω
+Damping Ratio (ζ),19364.9167310371,64.5497224367903,-
+RC Time Constant (τ_RC),300,1,ms
+Inductive Tau (τ_L),2e-07,6e-05,ms
+Rise Time,4.44917054869891e-07,0.000132585704594116,ms
+Settling Time (2% decay),1174.17417417417,3.91391391391391,ms
+Overshoot,0,0,%

@@ -74,9 +74,10 @@ f_n = omega_n / (2 * pi);
 % --- Fresh Water ---
 zeta_fresh = (R_fresh / (2 * L_coil)) * sqrt(L_coil * C_dl);
 Q_fresh = 1 / (2 * zeta_fresh);
-tau_fresh = 1 / (zeta_fresh * omega_n);  % Time constant
+tau_RC_fresh = R_fresh * C_dl;     % Slow double-layer charging time constant
+tau_L_fresh = L_coil / R_fresh;    % Fast inductive rise time constant
+tau_fresh = tau_RC_fresh;
 
-% Determine damping type
 if zeta_fresh < 1
     damping_type_fresh = 'UNDERDAMPED';
     omega_d_fresh = omega_n * sqrt(1 - zeta_fresh^2);  % Damped natural frequency
@@ -94,7 +95,9 @@ end
 % --- Salty Water ---
 zeta_salty = (R_salty / (2 * L_coil)) * sqrt(L_coil * C_dl);
 Q_salty = 1 / (2 * zeta_salty);
-tau_salty = 1 / (zeta_salty * omega_n);
+tau_RC_salty = R_salty * C_dl;
+tau_L_salty = L_coil / R_salty;
+tau_salty = tau_RC_salty;
 
 if zeta_salty < 1
     damping_type_salty = 'UNDERDAMPED';
@@ -113,7 +116,9 @@ end
 % --- Baseline ---
 zeta_baseline = (R_baseline / (2 * L_coil)) * sqrt(L_coil * C_dl);
 Q_baseline = 1 / (2 * zeta_baseline);
-tau_baseline = 1 / (zeta_baseline * omega_n);
+tau_RC_baseline = R_baseline * C_dl;
+tau_L_baseline = L_coil / R_baseline;
+tau_baseline = tau_RC_baseline;
 
 if zeta_baseline < 1
     damping_type_baseline = 'UNDERDAMPED';
@@ -135,7 +140,8 @@ disp('=== FRESH WATER (Low EC) ===');
 disp(['Damping Ratio (ζ):           ', num2str(zeta_fresh, '%.6f')]);
 disp(['Quality Factor (Q):          ', num2str(Q_fresh, '%.6f')]);
 disp(['Damping Type:                ', damping_type_fresh]);
-disp(['Time Constant (τ):           ', num2str(tau_fresh*1000, '%.3f'), ' ms']);
+disp(['RC Time Constant (tau_RC):   ', num2str(tau_RC_fresh*1000, '%.3f'), ' ms']);
+disp(['Inductive Tau (tau_L):       ', num2str(tau_L_fresh*1e9, '%.3e'), ' ns']);
 if ~isnan(T_d_fresh)
     disp(['Oscillation Period (T_d):    ', num2str(T_d_fresh*1000, '%.3f'), ' ms']);
     disp(['Damped Frequency (f_d):      ', num2str(1/T_d_fresh, '%.2f'), ' Hz']);
@@ -146,7 +152,8 @@ disp('=== SALTY WATER (High EC) ===');
 disp(['Damping Ratio (ζ):           ', num2str(zeta_salty, '%.6f')]);
 disp(['Quality Factor (Q):          ', num2str(Q_salty, '%.6f')]);
 disp(['Damping Type:                ', damping_type_salty]);
-disp(['Time Constant (τ):           ', num2str(tau_salty*1000, '%.3f'), ' ms']);
+disp(['RC Time Constant (tau_RC):   ', num2str(tau_RC_salty*1000, '%.3f'), ' ms']);
+disp(['Inductive Tau (tau_L):       ', num2str(tau_L_salty*1e9, '%.3e'), ' ns']);
 if ~isnan(T_d_salty)
     disp(['Oscillation Period (T_d):    ', num2str(T_d_salty*1000, '%.3f'), ' ms']);
     disp(['Damped Frequency (f_d):      ', num2str(1/T_d_salty, '%.2f'), ' Hz']);
@@ -157,7 +164,8 @@ disp('=== BASELINE (Medium EC) ===');
 disp(['Damping Ratio (ζ):           ', num2str(zeta_baseline, '%.6f')]);
 disp(['Quality Factor (Q):          ', num2str(Q_baseline, '%.6f')]);
 disp(['Damping Type:                ', damping_type_baseline]);
-disp(['Time Constant (τ):           ', num2str(tau_baseline*1000, '%.3f'), ' ms']);
+disp(['RC Time Constant (tau_RC):   ', num2str(tau_RC_baseline*1000, '%.3f'), ' ms']);
+disp(['Inductive Tau (tau_L):       ', num2str(tau_L_baseline*1e9, '%.3e'), ' ns']);
 if ~isnan(T_d_baseline)
     disp(['Oscillation Period (T_d):    ', num2str(T_d_baseline*1000, '%.3f'), ' ms']);
     disp(['Damped Frequency (f_d):      ', num2str(1/T_d_baseline, '%.2f'), ' Hz']);
@@ -169,27 +177,24 @@ end
 disp(' ');
 disp('--- STEP RESPONSE SIMULATIONS ---');
 
-% Determine appropriate simulation time (5x longest time constant)
-t_sim_max = max([tau_fresh, tau_salty, tau_baseline]) * 5;
-t_final = max(t_sim_max, 0.1);  % At least 100 ms
+% Run per-condition simulations over 5*tau_RC to resolve both rise and RC decay
+[y_fresh, t_fresh] = step(H_fresh, 5 * tau_RC_fresh);
+[y_salty, t_salty] = step(H_salty, 5 * tau_RC_salty);
+[y_baseline, t_baseline] = step(H_baseline, 5 * tau_RC_baseline);
 
-% Run step responses
-[y_fresh, t_fresh] = step(H_fresh, t_final);
-[y_salty, t_salty] = step(H_salty, t_final);
-[y_baseline, t_baseline] = step(H_baseline, t_final);
-
-disp(['Simulation time:             ', num2str(t_final*1000, '%.2f'), ' ms']);
+disp(['Fresh simulation window:     ', num2str(t_fresh(end)*1000, '%.2f'), ' ms']);
 
 % =========================================================================
 % PART E: ANALYZE STEP RESPONSE CHARACTERISTICS
 % =========================================================================
 disp(' ');
-disp('--- STEP RESPONSE METRICS ---');
+disp('--- STEP RESPONSE METRICS (relative to peak transient current) ---');
 
-% Use stepinfo for detailed analysis
-info_fresh = stepinfo(H_fresh);
-info_salty = stepinfo(H_salty);
-info_baseline = stepinfo(H_baseline);
+% Because H(s) has a zero at s=0 (DC steady-state current is 0), pass yfinal=0
+% so stepinfo computes transient rise time and 2% decay time relative to I_peak.
+info_fresh = stepinfo(y_fresh, t_fresh, 0);
+info_salty = stepinfo(y_salty, t_salty, 0);
+info_baseline = stepinfo(y_baseline, t_baseline, 0);
 
 % --- Fresh Water Metrics ---
 disp(' ');
@@ -281,9 +286,10 @@ summary_data = {
     'Damping Ratio (ζ)', zeta_fresh, zeta_salty, zeta_baseline, '-';
     'Quality Factor (Q)', Q_fresh, Q_salty, Q_baseline, '-';
     'Damping Type', damping_type_fresh, damping_type_salty, damping_type_baseline, '-';
-    'Time Constant (τ)', tau_fresh*1000, tau_salty*1000, tau_baseline*1000, 'ms';
+    'RC Time Constant (τ_RC)', tau_RC_fresh*1000, tau_RC_salty*1000, tau_RC_baseline*1000, 'ms';
+    'Inductive Tau (τ_L)', tau_L_fresh*1000, tau_L_salty*1000, tau_L_baseline*1000, 'ms';
     'Rise Time', info_fresh.RiseTime*1000, info_salty.RiseTime*1000, info_baseline.RiseTime*1000, 'ms';
-    'Settling Time', info_fresh.SettlingTime*1000, info_salty.SettlingTime*1000, info_baseline.SettlingTime*1000, 'ms';
+    'Settling Time (2% decay)', info_fresh.SettlingTime*1000, info_salty.SettlingTime*1000, info_baseline.SettlingTime*1000, 'ms';
     'Overshoot', info_fresh.Overshoot, info_salty.Overshoot, info_baseline.Overshoot, '%';
     'Peak Value', info_fresh.Peak, info_salty.Peak, info_baseline.Peak, '-';
     'Peak Time', info_fresh.PeakTime*1000, info_salty.PeakTime*1000, info_baseline.PeakTime*1000, 'ms';

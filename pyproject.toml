@@ -1,0 +1,41 @@
+[project]
+name = "soil-salinity-ec-sensor"
+version = "1.1.0"
+description = "Analytical RLC modeling, geometric optimization, and digital compensation for a soil electrical conductivity (EC) sensor"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26,<3",
+    "scipy>=1.12,<2",
+]
+
+[project.scripts]
+soil-sensor = "soil_sensor.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0,<10",
+    "ruff>=0.6,<1",
+]
+
+[build-system]
+requires = ["hatchling>=1.25,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/soil_sensor"]
+
+[tool.uv]
+exclude-newer = "14 days"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

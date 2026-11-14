@@ -3,6 +3,13 @@
 % Baseline Simulation Parameters
 % =========================================================================
 
+if exist('OCTAVE_VERSION', 'builtin')
+    addpath(fullfile(fileparts(mfilename('fullpath')), 'compat'));
+    if isempty(getenv('DISPLAY'))
+        set(0, 'defaultfigurevisible', 'off');
+    end
+end
+
 % 1. Sensor & System Parameters (from Table I of your document)
 K_cell = 1.0;          % Cell Constant (cm^-1, though assumed unitless for modeling) [cite: 97]
 L_coil = 3e-6;         % Lead Inductance (H) [cite: 97]
@@ -25,3 +32,7 @@ dt = 1/(f_ex * 50);    % Time step (s) - 50 times oversampling of the excitation
 V_peak = 1;            % Peak voltage of AC excitation (V)
 t_vec = 0:dt:T_sim;    % Time vector
 V_in = V_peak * sin(2*pi*f_ex * t_vec); % AC excitation signal (V)
+
+% 5. Transfer function coefficients (used by ec_sensor_model.slx)
+Num_L = [C_dl, 0];
+Den_L = [L_coil * C_dl, R_soil_baseline * C_dl, 1];

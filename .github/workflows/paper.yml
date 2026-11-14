@@ -1,0 +1,47 @@
+name: Paper
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "paper/**"
+      - ".github/workflows/paper.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "paper/**"
+      - ".github/workflows/paper.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-paper:
+    name: Build IEEE paper
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Compile IEEE LaTeX source
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/paper:/work" \
+            -w /work \
+            texlive/texlive@sha256:7056390eac37715fd3e01875037ceb4016cb17d44c611f7bbbfa7a012007979f \
+            latexmk -pdf -interaction=nonstopmode Soil_EC_Sensor_Design.tex
+
+      - name: Verify zero LaTeX warnings or hbox overflows
+        run: |
+          if grep -E "LaTeX Warning|(Overfull|Underfull) .hbox|undefined references" paper/Soil_EC_Sensor_Design.log; then
+            echo "LaTeX build produced warnings or box errors"
+            exit 1
+          fi
+
+      - name: Upload compiled PDF artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Soil_EC_Sensor_Design
+          path: paper/Soil_EC_Sensor_Design.pdf
+          if-no-files-found: error

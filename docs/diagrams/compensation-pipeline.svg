@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 380" width="920" height="380" role="img" aria-labelledby="comp-title comp-desc">
+  <title id="comp-title">Noise and Drift Compensation Signal Processing Chain (MS3)</title>
+  <desc id="comp-desc">Flow from piecewise-constant EC trajectory through AWGN and 0.05 Hz baseline drift injection, dual centered moving-average windows (N=500 and N=5000), and calibration lookup inversion, showing plateau noise reduction versus step transient smoothing.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; }
+      .box { fill: #ffffff; stroke: #0f766e; stroke-width: 1.8; }
+      .box-warn { fill: #fffbeb; stroke: #d97706; stroke-width: 1.8; }
+      .box-dark { fill: #f1f5f9; stroke: #475569; stroke-width: 1.5; }
+      .title { font: 700 18px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #0f172a; }
+      .subtitle { font: 500 12.5px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #475569; }
+      .hdr { font: 700 13px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #0f172a; }
+      .note { font: 400 12px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #334155; }
+      .mono { font: 600 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f766e; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arr); }
+    </style>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#334155" />
+    </marker>
+  </defs>
+
+  <rect x="2" y="2" width="916" height="376" rx="12" class="bg" />
+  <text x="28" y="34" class="title">Signal Impairment and Dual-Window Moving-Average Pipeline (MS3)</text>
+  <text x="28" y="54" class="subtitle">1 kHz sampling (20,001 samples over 20 s) for K_cell = 0.1 cm⁻¹ across 5 EC steps (1.0 to 10.0 µS/cm)</text>
+
+  <!-- Step 1: Ground truth -->
+  <rect x="24" y="78" width="184" height="96" rx="8" class="box" />
+  <text x="38" y="102" class="hdr">1. EC Trajectory</text>
+  <text x="38" y="122" class="note">R_soil steps every 4 s:</text>
+  <text x="38" y="139" class="mono">15, 50, 100, 30, 10 kΩ</text>
+  <text x="38" y="158" class="note">I_true = |H(j2π·1 kHz)|·1V</text>
+
+  <line x1="208" y1="126" x2="236" y2="126" class="arrow" />
+
+  <!-- Step 2: Noise + Drift -->
+  <rect x="238" y="78" width="206" height="96" rx="8" class="box-warn" />
+  <text x="252" y="102" class="hdr">2. Channel Impairments</text>
+  <text x="252" y="122" class="note">• AWGN: 30 dB target SNR</text>
+  <text x="252" y="139" class="note">• Drift: 8% mean · sin(2π·0.05t)</text>
+  <text x="252" y="158" class="mono" style="fill:#b45309;">Raw RMSE = 3.12e-7 S/cm (6.78%)</text>
+
+  <line x1="444" y1="126" x2="472" y2="126" class="arrow" />
+
+  <!-- Step 3a: N=500 -->
+  <rect x="474" y="78" width="204" height="68" rx="8" class="box-dark" />
+  <text x="488" y="100" class="hdr">3a. Short Window (N = 500)</text>
+  <text x="488" y="118" class="note">0.5 s centered movmean → I_filt</text>
+  <text x="488" y="135" class="mono">Full RMSE: 4.68e-7 S/cm (10.17%)</text>
+
+  <!-- Step 3b: N=5000 -->
+  <rect x="474" y="158" width="204" height="88" rx="8" class="box" />
+  <text x="488" y="180" class="hdr">3b. Long Window (N = 5000)</text>
+  <text x="488" y="198" class="note">5.0 s centered movmean → I_comp</text>
+  <text x="488" y="215" class="note">Diagnostic envelope: b_est = I_comp − I_filt</text>
+  <text x="488" y="233" class="mono">(0.05 Hz drift stays in I_comp)</text>
+
+  <!-- Branch arrow to 3b -->
+  <polyline points="458,126 458,202 472,202" class="arrow" />
+
+  <line x1="678" y1="202" x2="706" y2="202" class="arrow" />
+
+  <!-- Step 4: Lookup inversion -->
+  <rect x="708" y="144" width="188" height="102" rx="8" class="box" />
+  <text x="722" y="168" class="hdr">4. Calibration Lookup</text>
+  <text x="722" y="188" class="note">500 log-spaced R_soil values</text>
+  <text x="722" y="205" class="note">[5 Ω, 200 kΩ], linear interp</text>
+  <text x="722" y="224" class="mono">EC_est = K_cell / R_est</text>
+
+  <!-- Bottom findings box -->
+  <rect x="24" y="264" width="872" height="92" rx="8" class="box-dark" />
+  <text x="40" y="288" class="hdr">Verified Trade-off Results (matlab/results/data/compensation_signals.csv)</text>
+  <text x="40" y="308" class="note">• Full 20 s trajectory (Table IV): N = 5000 centered smoothing raises RMSE to 1.25e-6 S/cm (27.25%, max err 3.65e-6 S/cm) due to triangular lag at 4 s steps.</text>
+  <text x="40" y="326" class="note">• Step-free edge plateaus: On [0.0, 1.5] s and [18.5, 20.0] s, high-frequency noise std drops 9.6× (1.87e-7 → 1.95e-8 S/cm) and 9.9× (1.82e-7 → 1.83e-8 S/cm),</text>
+  <text x="40" y="344" class="note">  while plateau RMSE drops 2.05e-7 → 1.75e-7 S/cm and 2.02e-7 → 1.73e-7 S/cm with residual error dominated by the unremoved 0.05 Hz drift.</text>
+</svg>
